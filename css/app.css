@@ -1,0 +1,111 @@
+body {
+  background: #EEE;
+  color: #555;
+}
+
+.container {
+  margin: auto;
+  max-width: 80%;
+  width: 500px;
+}
+
+.header {
+  text-align: center;
+}
+
+.input,
+.input input {
+  text-align: center;
+}
+
+.light {
+  color: #666;
+  text-decoration: italic;
+}
+
+.todos {
+  margin: 10px 0;
+  list-style: none;
+  width: 100%;
+}
+
+.todo {
+  border: 1px inset #555;
+  padding: 10px;
+}
+
+.todo:not(:last-child) {
+  border-bottom: none;
+}
+
+.todo:last-child {
+  background: #DDD;
+}
+
+.clickable {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  display: inline-block;
+  width: 28px;
+  font-size: 1.25em;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.remove {
+  transition: opacity 250ms;
+  opacity: 0.75;
+  text-align: right;
+  float: right;
+  visibility: hidden;
+}
+
+.todo:hover:not(:last-child) .remove {
+  visibility: visible;
+}
+
+.remove:hover {
+  opacity: 1;
+}
+
+.done {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.info {
+  text-align: center;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.filters a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 5px 8px;
+  margin: 0 3px;
+  border-radius: 5px;
+}
+
+.filters a.selected,
+.filters a:hover {
+  margin: 0 2px;
+  border: 1px solid salmon;
+}
