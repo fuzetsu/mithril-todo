@@ -30,19 +30,23 @@ body {
   padding: 10px;
 }
 
-.input {
+.todo-input {
   background: #DDD;
   border: 1px solid #555;
   padding: 10px;
 }
 
-.input form {
+.todo-editing {
+  background: orange;
+}
+
+.todo-input form, .todo-editing form {
   display: inline;
 }
 
-.input input {
+.todo-input-text {
   border: none;
-  width: 90%;
+  width: 80%;
   background: inherit;
   outline: none;
   margin: 0;
@@ -54,7 +58,7 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   display: inline-block;
-  width: 28px;
+  width: 5%;
   font-size: 1.25em;
   vertical-align: middle;
   cursor: pointer;
@@ -118,8 +122,4 @@ body {
 .filters a:hover {
   margin: 0 2px;
   border: 1px solid rgb(202, 45, 27);
-}
-
-.edit-form {
-  display: inline-block;
 }

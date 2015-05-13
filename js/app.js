@@ -4,7 +4,6 @@ var app = {};
 app.todo = function(data) {
   data = data || {};
   // data
-  this.id = m.prop(data.id || '');
   this.description = m.prop(data.description || '');
   this.done = m.prop(data.done || false);
   // view
@@ -28,8 +27,7 @@ app.todo.serialize = function(list) {
   return JSON.stringify(list.map(function(todo) {
     return {
       description: todo.description(),
-      done: todo.done(),
-      id: todo.id()
+      done: todo.done()
     };
   }));
 };
@@ -56,10 +54,19 @@ app.v = {
   remove: function(opts) {
     return m('span.remove.clickable', {onclick: opts.onclick}, m('i.fa.fa-times'));
   },
-  desc: function(ctrl, todo) {
-    return m('span', {className: todo.done() ? 'done': ''}, todo.editing() ? m('form.edit-form.pure-form', {onsubmit: ctrl.edit.bind(null, todo)}, [
-      m('input', {config: app.c.autofocus, onchange: m.withAttr('value', todo.description), value: todo.description()})
-    ]) : todo.description());
+  desc: function(opts, todo) {
+    if(todo.editing()) {
+      return m('form.edit-form', {onsubmit: opts.onedit }, [
+        m('input.todo-input-text', {
+          config: app.c.autofocus,
+          className: todo.done() ? 'done': '',
+          onchange: m.withAttr('value', todo.description),
+          value: todo.description()
+        })
+      ]);
+    } else {
+      return m('span', {className: todo.done() ? 'done': ''}, todo.description());
+    }
   },
   filter: function(desired, filter) {
     return m('a', {config: m.route, className: desired.toLowerCase() === filter.toLowerCase() ? 'selected' : '', href: '/' + desired.toLowerCase()}, desired);
@@ -70,14 +77,14 @@ app.v = {
 app.TodoView = {
   controller: function(args) {
     this.todos = app.todo.list();
-    this.todo = new app.todo({id: this.todos.length});
+    this.todo = new app.todo();
     this.rfilter = (m.route.param('filter') || 'all').toLowerCase();
 
     this.add = function(e) {
       if(e) e.preventDefault();
       if(!this.todo.description()) return false;
-      this.todos.push(this.todo);
-      this.todo = new app.todo({id: this.todos.length});
+      this.todos.unshift(this.todo);
+      this.todo = new app.todo();
       this.save();
     }.bind(this);
 
@@ -153,21 +160,23 @@ app.TodoView = {
     var phrase = totalRemaining === 1 ? 'item' : 'items';
     return m('div.container', [
       m('h1.header', 'Todo App'),
-      m('.input', [
+      m('.todo-input', [
         app.v.check({onclick: ctrl.toggleAllDone.bind(null, todos)}, filteredRemaining === 0 && todos.length > 1),
         m('form', {onsubmit: ctrl.add}, [
-          m('input[type=text][placeholder=description]', {
+          m('input.todo-input-text[type=text][placeholder=description]', {
             onchange: m.withAttr('value', ctrl.todo.description),
             value: ctrl.todo.description()
           })
         ])
       ]),
       m('.todos', todos.map(function(todo, index) {
-        return m('.todo', [
-          app.v.check({onclick: ctrl.toggleDone.bind(null, todo)}, todo.done()),
-          app.v.desc(ctrl, todo),
+        return m('.todo', {className: todo.editing() ? 'todo-editing' : ''}, [
+          // flaoted right
           app.v.remove({onclick: ctrl.remove.bind(null, todo)}),
-          app.v.edit({onclick: todo.editing.bind(null, true)})
+          app.v.edit({onclick: todo.editing.bind(null, true)}),
+          // regular flow
+          app.v.check({onclick: ctrl.toggleDone.bind(null, todo)}, todo.done()),
+          app.v.desc({onedit: ctrl.edit.bind(null, todo)}, todo)
         ]);
       })),
       m('.info', [
