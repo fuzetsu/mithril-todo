@@ -45,18 +45,18 @@ app.c = {
 
 // PARTIALS
 app.v = {
-  check: function(opts, state) {
-    return m('span.check.clickable', {onclick: opts.onclick}, state ? m('i.fa.fa-check-square-o') : m('i.fa.fa-square-o'));
+  check: function(args, state) {
+    return m('span.check.clickable', {onclick: args.onclick}, state ? m('i.fa.fa-check-square-o') : m('i.fa.fa-square-o'));
   },
-  edit: function(opts) {
-    return m('span.edit.clickable', {onclick: opts.onclick}, m('i.fa.fa-pencil-square-o'));
+  edit: function(args) {
+    return m('span.edit.clickable', {onclick: args.onclick}, m('i.fa.fa-pencil-square-o'));
   },
-  remove: function(opts) {
-    return m('span.remove.clickable', {onclick: opts.onclick}, m('i.fa.fa-times'));
+  remove: function(args) {
+    return m('span.remove.clickable', {onclick: args.onclick}, m('i.fa.fa-times'));
   },
-  desc: function(opts, todo) {
+  desc: function(args, todo) {
     if(todo.editing()) {
-      return m('form.edit-form', {onsubmit: opts.onedit }, [
+      return m('form.edit-form', {onsubmit: args.onedit }, [
         m('input.todo-input-text', {
           config: app.c.autofocus,
           className: todo.done() ? 'done': '',
