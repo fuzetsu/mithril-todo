@@ -46,7 +46,7 @@ app.v = {
     return m('span', {className: todo.done() ? 'done': ''}, todo.description());
   },
   filter: function(desired, filter) {
-    return m('a', {config: m.route, className: desired.toLowerCase() === filter.toLowerCase() ? 'selected' : '', href: '/' + desired}, desired);
+    return m('a', {config: m.route, className: desired.toLowerCase() === filter.toLowerCase() ? 'selected' : '', href: '/' + desired.toLowerCase()}, desired);
   }
 };
 
@@ -55,7 +55,7 @@ app.TodoView = {
   controller: function(args) {
     this.todos = app.todo.list();
     this.todo = new app.todo({id: this.todos.length});
-    this.rfilter = m.route.param('filter') || 'all';
+    this.rfilter = (m.route.param('filter') || 'all').toLowerCase();
 
     this.add = function(e) {
       if(e) e.preventDefault();
@@ -92,7 +92,7 @@ app.TodoView = {
     }.bind(this);
 
     this.get = function() {
-      var filter = this.rfilter.toLowerCase();
+      var filter = this.rfilter;
       return this.todos.filter(function(todo) {
         switch(filter) {
           case 'all':
@@ -140,7 +140,6 @@ app.TodoView = {
 };
 
 m.route.mode = 'hash';
-m.route(document.body, '/', {
-  '/': app.TodoView,
+m.route(document.body, '/all', {
   '/:filter': app.TodoView
 });
