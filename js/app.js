@@ -3,9 +3,13 @@ var app = {};
 // MODELS
 app.todo = function(data) {
   data = data || {};
+  // data
   this.id = m.prop(data.id || '');
   this.description = m.prop(data.description || '');
   this.done = m.prop(data.done || false);
+  // view
+  // TODO: is this a good pattern?
+  this.editing = m.prop(false);
 };
 
 app.todo.ns = 'my-mithril-todo';
@@ -34,16 +38,28 @@ app.todo.save = function(list) {
   localStorage[app.todo.ns + '.todos'] = app.todo.serialize(list);
 };
 
+// CONFIGS
+app.c = {
+  autofocus: function(elem) {
+    elem.focus();
+  }
+};
+
 // PARTIALS
 app.v = {
   check: function(ctrl, todo, disabled) {
     return m('span.check.clickable', {onclick: disabled ? null : ctrl.toggleDone.bind(null, todo)}, todo.done() ? m('i.fa.fa-check-square-o') : m('i.fa.fa-square-o'));
   },
+  edit: function(todo, disabled) {
+    return m('span.edit.clickable', {onclick: disabled ? null : todo.editing.bind(null, true)}, m('i.fa.fa-pencil-square-o'));
+  },
   remove: function(ctrl, todo, disabled) {
     return m('span.remove.clickable', {onclick: disabled ? null : ctrl.remove.bind(null, todo)}, m('i.fa.fa-times'));
   },
-  desc: function(todo) {
-    return m('span', {className: todo.done() ? 'done': ''}, todo.description());
+  desc: function(ctrl, todo) {
+    return m('span', {className: todo.done() ? 'done': ''}, todo.editing() ? m('form.edit-form.pure-form', {onsubmit: ctrl.editTodo.bind(null, todo)}, [
+      m('input', {config: app.c.autofocus, onchange: m.withAttr('value', todo.description), value: todo.description()})
+    ]) : todo.description());
   },
   filter: function(desired, filter) {
     return m('a', {config: m.route, className: desired.toLowerCase() === filter.toLowerCase() ? 'selected' : '', href: '/' + desired.toLowerCase()}, desired);
@@ -85,6 +101,14 @@ app.TodoView = {
       this.save();
     }.bind(this);
 
+    this.editTodo = function(todo, e) {
+      if(e) e.preventDefault();
+      if(todo.description()) {
+        todo.editing(false);
+        this.save();
+      }
+    }.bind(this);
+
     this.clearDone = function() {
       this.filter(function(todo) {
         return !todo.done();
@@ -122,8 +146,9 @@ app.TodoView = {
         var last = todos.length === index + 1;
         return m('.todo', [
           app.v.check(ctrl, todo, last),
-          app.v.desc(todo),
-          app.v.remove(ctrl, todo, last)
+          app.v.desc(ctrl, todo),
+          app.v.remove(ctrl, todo, last),
+          app.v.edit(todo, last)
         ]);
       })),
       m('.info', [

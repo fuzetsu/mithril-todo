@@ -53,7 +53,8 @@ body {
   cursor: pointer;
 }
 
-.remove {
+.remove,
+.edit {
   transition: opacity 250ms;
   opacity: 0.75;
   text-align: right;
@@ -61,12 +62,14 @@ body {
   visibility: hidden;
 }
 
-.todo:hover:not(:last-child) .remove {
-  visibility: visible;
+.remove:hover,
+.edit:hover {
+  opacity: 1;
 }
 
-.remove:hover {
-  opacity: 1;
+.todo:hover:not(:last-child) .remove,
+.todo:hover:not(:last-child) .edit {
+  visibility: visible;
 }
 
 .done {
@@ -108,4 +111,8 @@ body {
 .filters a:hover {
   margin: 0 2px;
   border: 1px solid salmon;
+}
+
+.edit-form {
+  display: inline-block;
 }
