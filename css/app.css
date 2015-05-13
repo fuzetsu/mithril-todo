@@ -13,33 +13,40 @@ body {
   text-align: center;
 }
 
-.input,
-.input input {
-  text-align: center;
-}
-
 .light {
   color: #666;
   text-decoration: italic;
 }
 
 .todos {
-  margin: 10px 0;
+  margin-bottom: 10px;
   list-style: none;
   width: 100%;
 }
 
 .todo {
-  border: 1px inset #555;
+  border: 1px solid #555;
+  border-top: none;
   padding: 10px;
 }
 
-.todo:not(:last-child) {
-  border-bottom: none;
+.input {
+  background: #DDD;
+  border: 1px solid #555;
+  padding: 10px;
 }
 
-.todo:last-child {
-  background: #DDD;
+.input form {
+  display: inline;
+}
+
+.input input {
+  border: none;
+  width: 90%;
+  background: inherit;
+  outline: none;
+  margin: 0;
+  padding: 0;
 }
 
 .clickable {
@@ -67,8 +74,8 @@ body {
   opacity: 1;
 }
 
-.todo:hover:not(:last-child) .remove,
-.todo:hover:not(:last-child) .edit {
+.todo:hover .remove,
+.todo:hover .edit {
   visibility: visible;
 }
 
@@ -110,7 +117,7 @@ body {
 .filters a.selected,
 .filters a:hover {
   margin: 0 2px;
-  border: 1px solid salmon;
+  border: 1px solid rgb(202, 45, 27);
 }
 
 .edit-form {

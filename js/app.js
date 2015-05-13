@@ -47,17 +47,17 @@ app.c = {
 
 // PARTIALS
 app.v = {
-  check: function(ctrl, todo, disabled) {
-    return m('span.check.clickable', {onclick: disabled ? null : ctrl.toggleDone.bind(null, todo)}, todo.done() ? m('i.fa.fa-check-square-o') : m('i.fa.fa-square-o'));
+  check: function(opts, state) {
+    return m('span.check.clickable', {onclick: opts.onclick}, state ? m('i.fa.fa-check-square-o') : m('i.fa.fa-square-o'));
   },
-  edit: function(todo, disabled) {
-    return m('span.edit.clickable', {onclick: disabled ? null : todo.editing.bind(null, true)}, m('i.fa.fa-pencil-square-o'));
+  edit: function(opts) {
+    return m('span.edit.clickable', {onclick: opts.onclick}, m('i.fa.fa-pencil-square-o'));
   },
-  remove: function(ctrl, todo, disabled) {
-    return m('span.remove.clickable', {onclick: disabled ? null : ctrl.remove.bind(null, todo)}, m('i.fa.fa-times'));
+  remove: function(opts) {
+    return m('span.remove.clickable', {onclick: opts.onclick}, m('i.fa.fa-times'));
   },
   desc: function(ctrl, todo) {
-    return m('span', {className: todo.done() ? 'done': ''}, todo.editing() ? m('form.edit-form.pure-form', {onsubmit: ctrl.editTodo.bind(null, todo)}, [
+    return m('span', {className: todo.done() ? 'done': ''}, todo.editing() ? m('form.edit-form.pure-form', {onsubmit: ctrl.edit.bind(null, todo)}, [
       m('input', {config: app.c.autofocus, onchange: m.withAttr('value', todo.description), value: todo.description()})
     ]) : todo.description());
   },
@@ -101,7 +101,7 @@ app.TodoView = {
       this.save();
     }.bind(this);
 
-    this.editTodo = function(todo, e) {
+    this.edit = function(todo, e) {
       if(e) e.preventDefault();
       if(todo.description()) {
         todo.editing(false);
@@ -115,6 +115,16 @@ app.TodoView = {
       });
     }.bind(this);
 
+    this.toggleAllDone = function(todos) {
+      var allDone = todos.every(function(todo) {
+        return todo.done();
+      });
+      todos.forEach(function(todo) {
+        todo.done(!allDone);
+      });
+      this.save();
+    }.bind(this);
+
     this.get = function() {
       var filter = this.rfilter;
       return this.todos.filter(function(todo) {
@@ -126,39 +136,48 @@ app.TodoView = {
           case 'completed':
             return todo.done();
         }
-      }).concat([this.todo]);
+      });
     }.bind(this);
+
+    this.itemsLeft = function(todos) {
+      return todos.filter(function(todo) {
+        return !todo.done();
+      }).length;
+    }.bind(this);
+
   },
   view: function(ctrl, args) {
-    var itemsLeft = ctrl.todos.filter(function(todo) {
-      return !todo.done();
-    }).length;
-    var phrase = itemsLeft === 1 ? 'item' : 'items';
+    var todos = ctrl.get();
+    var filteredRemaining = ctrl.itemsLeft(todos);
+    var totalRemaining = ctrl.itemsLeft(ctrl.todos);
+    var phrase = totalRemaining === 1 ? 'item' : 'items';
     return m('div.container', [
       m('h1.header', 'Todo App'),
-      m('form.input.pure-form', {onsubmit: ctrl.add}, [
-        m('input[type=text][placeholder=description]', {
-          oninput: m.withAttr('value', ctrl.todo.description),
-          value: ctrl.todo.description()
-        })
+      m('.input', [
+        app.v.check({onclick: ctrl.toggleAllDone.bind(null, todos)}, filteredRemaining === 0 && todos.length > 1),
+        m('form', {onsubmit: ctrl.add}, [
+          m('input[type=text][placeholder=description]', {
+            oninput: m.withAttr('value', ctrl.todo.description),
+            value: ctrl.todo.description()
+          })
+        ])
       ]),
-      m('.todos', ctrl.get().map(function(todo, index, todos) {
-        var last = todos.length === index + 1;
+      m('.todos', todos.map(function(todo, index) {
         return m('.todo', [
-          app.v.check(ctrl, todo, last),
+          app.v.check({onclick: ctrl.toggleDone.bind(null, todo)}, todo.done()),
           app.v.desc(ctrl, todo),
-          app.v.remove(ctrl, todo, last),
-          app.v.edit(todo, last)
+          app.v.remove({onclick: ctrl.remove.bind(null, todo)}),
+          app.v.edit({onclick: todo.editing.bind(null, true)})
         ]);
       })),
       m('.info', [
-        m('span.left', itemsLeft + ' ' + phrase + ' left'),
+        m('span.left', totalRemaining + ' ' + phrase + ' left'),
         m('span.filters', [
           app.v.filter('All', ctrl.rfilter),
           app.v.filter('Active', ctrl.rfilter),
           app.v.filter('Completed', ctrl.rfilter)
         ]),
-        itemsLeft < ctrl.todos.length ? m('a.right.link[href=javascript:void(0)]', {onclick: ctrl.clearDone}, 'Clear Done') : ''
+        totalRemaining < ctrl.todos.length ? m('a.right.link[href=javascript:void(0)]', {onclick: ctrl.clearDone}, 'Clear Done') : ''
       ])
     ]);
   }
