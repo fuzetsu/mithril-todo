@@ -139,7 +139,7 @@ app.TodoView = {
       });
     }.bind(this);
 
-    this.itemsLeft = function(todos) {
+    this.countNotDone = function(todos) {
       return todos.filter(function(todo) {
         return !todo.done();
       }).length;
@@ -148,8 +148,8 @@ app.TodoView = {
   },
   view: function(ctrl, args) {
     var todos = ctrl.get();
-    var filteredRemaining = ctrl.itemsLeft(todos);
-    var totalRemaining = ctrl.itemsLeft(ctrl.todos);
+    var filteredRemaining = ctrl.countNotDone(todos);
+    var totalRemaining = ctrl.countNotDone(ctrl.todos);
     var phrase = totalRemaining === 1 ? 'item' : 'items';
     return m('div.container', [
       m('h1.header', 'Todo App'),
@@ -157,7 +157,7 @@ app.TodoView = {
         app.v.check({onclick: ctrl.toggleAllDone.bind(null, todos)}, filteredRemaining === 0 && todos.length > 1),
         m('form', {onsubmit: ctrl.add}, [
           m('input[type=text][placeholder=description]', {
-            oninput: m.withAttr('value', ctrl.todo.description),
+            onchange: m.withAttr('value', ctrl.todo.description),
             value: ctrl.todo.description()
           })
         ])
