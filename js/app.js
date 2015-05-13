@@ -6,9 +6,6 @@ app.todo = function(data) {
   // data
   this.description = m.prop(data.description || '');
   this.done = m.prop(data.done || false);
-  // view
-  // TODO: is this a good pattern?
-  this.editing = m.prop(false);
 };
 
 app.todo.ns = 'my-mithril-todo';
@@ -45,8 +42,8 @@ app.c = {
 
 // PARTIALS
 app.v = {
-  check: function(args, state) {
-    return m('span.check.clickable', {onclick: args.onclick}, state ? m('i.fa.fa-check-square-o') : m('i.fa.fa-square-o'));
+  check: function(args) {
+    return m('span.check.clickable', {onclick: args.onclick}, args.checked ? m('i.fa.fa-check-square-o') : m('i.fa.fa-square-o'));
   },
   edit: function(args) {
     return m('span.edit.clickable', {onclick: args.onclick}, m('i.fa.fa-pencil-square-o'));
@@ -54,8 +51,9 @@ app.v = {
   remove: function(args) {
     return m('span.remove.clickable', {onclick: args.onclick}, m('i.fa.fa-times'));
   },
-  desc: function(args, todo) {
-    if(todo.editing()) {
+  desc: function(args) {
+    var todo = args.todo;
+    if(args.isEditing) {
       return m('form.edit-form', {onsubmit: args.onedit }, [
         m('input.todo-input-text', {
           config: app.c.autofocus,
@@ -76,9 +74,13 @@ app.v = {
 // MAIN
 app.TodoView = {
   controller: function(args) {
+    // retrieve model data
     this.todos = app.todo.list();
+
+    // setup new todo and filter
     this.todo = new app.todo();
     this.rfilter = (m.route.param('filter') || 'all').toLowerCase();
+    this.editIndex = m.prop(-1);
 
     this.add = function(e) {
       if(e) e.preventDefault();
@@ -111,7 +113,7 @@ app.TodoView = {
     this.edit = function(todo, e) {
       if(e) e.preventDefault();
       if(todo.description()) {
-        todo.editing(false);
+        this.editIndex(-1);
         this.save();
       }
     }.bind(this);
@@ -170,13 +172,14 @@ app.TodoView = {
         ])
       ]),
       m('.todos', todos.map(function(todo, index) {
-        return m('.todo', {className: todo.editing() ? 'todo-editing' : ''}, [
+        var isEditing = ctrl.editIndex() === index;
+        return m('.todo', {className: isEditing ? 'todo-editing' : ''}, [
           // flaoted right
           app.v.remove({onclick: ctrl.remove.bind(null, todo)}),
-          app.v.edit({onclick: todo.editing.bind(null, true)}),
+          app.v.edit({onclick: ctrl.editIndex.bind(null, index)}),
           // regular flow
-          app.v.check({onclick: ctrl.toggleDone.bind(null, todo)}, todo.done()),
-          app.v.desc({onedit: ctrl.edit.bind(null, todo)}, todo)
+          app.v.check({onclick: ctrl.toggleDone.bind(null, todo), checked: todo.done()}),
+          app.v.desc({onedit: ctrl.edit.bind(null, todo), todo: todo, isEditing: isEditing})
         ]);
       })),
       m('.info', [
