@@ -42,6 +42,14 @@ app.c = {
 
 // PARTIALS
 app.v = {
+  header: function() {
+    var children = [].slice.call(arguments);
+    return m('h1.header', children);
+  },
+  footer: function() {
+    var children = [].slice.call(arguments);
+    return m('footer', children);
+  },
   check: function(args) {
     return m('span.check.clickable', {onclick: args.onclick}, args.checked ? m('i.fa.fa-check-square-o') : m('i.fa.fa-square-o'));
   },
@@ -161,7 +169,7 @@ app.TodoView = {
     var totalRemaining = ctrl.countNotDone(ctrl.todos);
     var phrase = totalRemaining === 1 ? 'item' : 'items';
     return m('div.container', [
-      m('h1.header', 'Todo App'),
+      app.v.header('Todo App'),
       m('.todo-input', [
         app.v.check({onclick: ctrl.toggleAllDone.bind(null, todos), checked: filteredRemaining === 0 && todos.length > 0}),
         m('form', {onsubmit: ctrl.add}, [
@@ -190,7 +198,8 @@ app.TodoView = {
           app.v.filter('Completed', ctrl.rfilter)
         ]),
         totalRemaining < ctrl.todos.length ? m('a.right.link[href=javascript:void(0)]', {onclick: ctrl.clearDone}, 'Clear Done') : ''
-      ])
+      ]),
+      app.v.footer('Daniel Loomer ', m.trust('&copy;'), ' 2015')
     ]);
   }
 };
