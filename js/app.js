@@ -163,7 +163,7 @@ app.TodoView = {
     return m('div.container', [
       m('h1.header', 'Todo App'),
       m('.todo-input', [
-        app.v.check({onclick: ctrl.toggleAllDone.bind(null, todos)}, filteredRemaining === 0 && todos.length > 0),
+        app.v.check({onclick: ctrl.toggleAllDone.bind(null, todos), checked: filteredRemaining === 0 && todos.length > 0}),
         m('form', {onsubmit: ctrl.add}, [
           m('input.todo-input-text[type=text][placeholder=description]', {
             onchange: m.withAttr('value', ctrl.todo.description),
